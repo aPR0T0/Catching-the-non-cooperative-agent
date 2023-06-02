@@ -22,30 +22,37 @@
     SOFTWARE.
 """
 
-#! usr/bin/python3
-# This is a polynomial predictor which will get the future state of the person
-# using the simple position and velocity state variables
-"""
-Function : predictor_polynomial curve
-Inputs : current position of target and a position second before of the target
-"""
-
-
-def predictor_polynomial(x0, y0, x1, y1):
-    global x2, y2
-
-    x2 = ((x0 + x1) ^ 2) / 2
-    y2 = ((y0 + y1) ^ 2) / 2
-
-    return x2, y2
-
+from prediction import predictor_polynomial
 
 """
-Function : predictor_kalman
-Inputs : current position of target and a position second before of the target
+We first need the current location
+Then we need to get all the desired setpoints for UGV and UAV
+Then we need to go for the next point that is Update step and do the previous step for the same
+Above procedure is repeated until distance between UGV and target is <= 1
+"""
+x_previous, y_previous = 0, 0
+
+# velocity of target = 1m/s ... Initially i.e. just assumed
+# This velocity should be observed by the UAV
+vel_target = 1
+
+# i.e. we can predict just the next step through the polynomial predictor
+time_horizon = 1
+
+x_current, y_current = predictor_polynomial(
+    x_previous, y_previous, x_previous + vel_target, y_previous + vel_target
+)
+
+"""
+Now, we need 3 different sets of points
+1. Get the location of the target and then choose four points in 1m North, South, East, and west of the target
+2. Now, take the radius equal to the time_horizon and choose six equidistant points on the circle
+3. Take the radius of another circle equal to twice the time horizon and choose 8 equidistant point from the circle and add them to the candidate locations
 """
 
+def candidates():
+    
 
-def predictor_kalman():
-    x2 = 0
-    y2 = 0
+
+if __name__ == "__main__":
+    candidates()
