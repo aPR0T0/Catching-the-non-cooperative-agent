@@ -21,27 +21,9 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 """
-
+import numpy as np
+from cmath import sin, cos, pi
 from prediction import predictor_polynomial
-
-"""
-We first need the current location
-Then we need to get all the desired setpoints for UGV and UAV
-Then we need to go for the next point that is Update step and do the previous step for the same
-Above procedure is repeated until distance between UGV and target is <= 1
-"""
-x_previous, y_previous = 0, 0
-
-# velocity of target = 1m/s ... Initially i.e. just assumed
-# This velocity should be observed by the UAV
-vel_target = 1
-
-# i.e. we can predict just the next step through the polynomial predictor
-time_horizon = 1
-
-x_current, y_current = predictor_polynomial(
-    x_previous, y_previous, x_previous + vel_target, y_previous + vel_target
-)
 
 """
 Now, we need 3 different sets of points
@@ -50,9 +32,28 @@ Now, we need 3 different sets of points
 3. Take the radius of another circle equal to twice the time horizon and choose 8 equidistant point from the circle and add them to the candidate locations
 """
 
-def candidates():
-    
+# i.e. we can predict just the next step through the polynomial predictor
+time_horizon = 1
 
 
-if __name__ == "__main__":
-    candidates()
+def candidates(x_current, y_current):
+    candidate_locations = np.empty((2, np.inf))
+
+    candidate_locations.append(x_current, y_current + 1)
+    candidate_locations.append(x_current, y_current - 1)
+    candidate_locations.append(x_current + 1, y_current)
+    candidate_locations.append(x_current - 1, y_current)
+
+    for i in range(0, 360, 60):
+        candidate_locations.append(
+            (time_horizon * cos(i * pi / 180)) + x_current,
+            (time_horizon * sin(i * pi / 180)) + y_current,
+        )
+
+    for i in range(0, 360, 45):
+        candidate_locations.append(
+            (2 * time_horizon * cos(i * pi / 180)) + x_current,
+            (2 * time_horizon * sin(i * pi / 180)) + y_current,
+        )
+
+    return candidate_locations

@@ -21,11 +21,36 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 """
-# This will give the path that should be followed based on the shortlisted
-# reachable sites by the uav
+# This code is to get the value for the cost i.e. distance between
+# ugv and the person based on the location of the ugv and the person
+
+from cmath import sqrt, cos, sin
+import numpy as np
+
+# x1 and y1 here are the current positons of the UGV
+x1, y1 = 0, 0
+# Speed of UGV
+v1 = 1  # 1 m/s
 
 """
-We will get a set of candidate goal pose from the candidates.py
-and then according to the heuristics for the UAV we will shortlist the reachable
-set of candidates for just UAV
+Information cost calculation:
+We need the most reliable field of view possible from a given point to the tracked object
+
+So, for the same we propose a cost function that focuses on predicting motion of the object over the larger FOV
 """
+
+
+def dist(x1, y1, x2, y2):
+    return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
+def minimize_cost(list, x1, y1):
+    min_cost = np.inf
+    min_cost_coordinates = np.array(list[0][0], list[0][1])
+
+    for i in range(len(list)):
+        if min_cost > dist(x1, y1, list[i][0], list[i][1]):
+            min_cost = min(dist(x1, y1, list[i][0], list[i][1]), min_cost)
+            min_cost_coordinates = np.array(list[i][0], list[i][1])
+
+    return min_cost_coordinates

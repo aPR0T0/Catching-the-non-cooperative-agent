@@ -21,11 +21,34 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 """
-# This will give the path that should be followed by the ugv based on
-# cost function and the reachability of those points with the given speed
+
+#! usr/bin/python3
+# This is a polynomial predictor which will get the future state of the person
+# using the simple position and velocity state variables
+"""
+Function : predictor_polynomial curve
+Inputs : current position of target and a position second before of the target
+"""
+import numpy as np
+
+
+# This is only about a forward direction
+def predictor_polynomial(x0, y0, x1, y1):
+    global x2, y2
+
+    x2 = ((x0 + x1 + 1) ^ 2) / 2
+    y2 = ((y0 + y1 + 1) ^ 2) / 2
+
+    pose_est = np.array([x2, y2])
+    return pose_est
+
 
 """
-We will get a set of candidate goal pose from the candidates.py
-and then according to the heuristics for the UGV we will shortlist the reachable
-set of candidates for just UGV
+Function : predictor_kalman
+Inputs : current position of target and a position second before of the target
 """
+
+
+def predictor_kalman():
+    x2 = 0
+    y2 = 0

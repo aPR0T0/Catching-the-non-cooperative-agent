@@ -86,6 +86,11 @@ def reward(x0, y0, x1, y1, x_target, y_target):
 
 def maximize_reward(list, x0, y0):
     max_reward = 0
-    max_reward_coordinates = np.array(list[0], list[1])
+    max_reward_coordinates = np.array(list[0][0], list[0][1])
+
     for i in range(len(list)):
-        max_reward = max(reward(x0, y0, x1, y1, list[i][0], list[i][1]), max_reward)
+        if max_reward < reward(x0, y0, x1, y1, list[i][0], list[i][1]):
+            max_reward = max(reward(x0, y0, x1, y1, list[i][0], list[i][1]), max_reward)
+            max_reward_coordinates = np.array(list[i][0], list[i][1])
+
+    return max_reward_coordinates
