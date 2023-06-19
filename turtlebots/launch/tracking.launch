@@ -14,7 +14,7 @@
   </include>
 
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-  <param name="robot_description_tb1" command="$(find xacro)/xacro --inorder $(find tracking_agent)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+  <param name="robot_description_tb1" command="$(find xacro)/xacro --inorder $(find turtlebots)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf1"  args="-urdf -model turtlebot3_$(arg model)_1 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf2"  args="-urdf -model turtlebot3_$(arg model)_2 -x 3.0 -y -1.0 -z $(arg z_pos) -param robot_description_tb1" />
