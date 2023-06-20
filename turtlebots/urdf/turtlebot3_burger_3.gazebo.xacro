@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<robot name="turtlebot3_burger_sim_tb1" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="turtlebot3_burger_sim_tb2" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:arg name="laser_visual" default="false"/>
   <xacro:arg name="imu_visual"   default="false"/>
 
-  <gazebo reference="base_link_tb1">
+  <gazebo reference="base_link_tb2">
     <material>Gazebo/DarkGrey</material>
   </gazebo>
 
-  <gazebo reference="wheel_left_link_tb1">     
+  <gazebo reference="wheel_left_link_tb2">     
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
     <kp>500000.0</kp>
@@ -18,7 +18,7 @@
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
-  <gazebo reference="wheel_right_link_tb1">
+  <gazebo reference="wheel_right_link_tb2">
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
     <kp>500000.0</kp>
@@ -29,7 +29,7 @@
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
-  <gazebo reference="caster_back_link_tb1">
+  <gazebo reference="caster_back_link_tb2">
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
     <kp>1000000.0</kp>
@@ -39,7 +39,7 @@
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
-  <gazebo reference="imu_link_tb1">
+  <gazebo reference="imu_link_tb2">
     <sensor type="imu" name="imu">
       <always_on>true</always_on>
       <visualize>$(arg imu_visual)</visualize>
@@ -49,9 +49,9 @@
 
   <gazebo>
     <plugin name="turtlebot3_burger_controller" filename="libgazebo_ros_diff_drive.so">
-      <commandTopic>cmd_vel_tb1</commandTopic>
-      <odometryTopic>odom_tb1</odometryTopic>
-      <odometryFrame>odom_tb1</odometryFrame>
+      <commandTopic>cmd_vel_tb2</commandTopic>
+      <odometryTopic>odom_tb2</odometryTopic>
+      <odometryFrame>odom_tb2</odometryFrame>
       <odometrySource>world</odometrySource>
       <publishOdomTF>true</publishOdomTF>
       <robotBaseFrame>base_footprint</robotBaseFrame>
@@ -60,8 +60,8 @@
       <publishWheelJointState>true</publishWheelJointState>
       <legacyMode>false</legacyMode>
       <updateRate>30</updateRate>
-      <leftJoint>wheel_left_joint_tb1</leftJoint>
-      <rightJoint>wheel_right_joint_tb1</rightJoint>
+      <leftJoint>wheel_left_joint_tb2</leftJoint>
+      <rightJoint>wheel_right_joint_tb2</rightJoint>
       <wheelSeparation>0.160</wheelSeparation>
       <wheelDiameter>0.066</wheelDiameter>
       <wheelAcceleration>1</wheelAcceleration>
@@ -73,10 +73,10 @@
   <gazebo>
     <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
       <alwaysOn>true</alwaysOn>
-      <bodyName>imu_link_tb1</bodyName>
-      <frameName>imu_link_tb1</frameName>
-      <topicName>imu_tb1</topicName>
-      <serviceName>imu_service_tb1</serviceName>
+      <bodyName>imu_link_tb2</bodyName>
+      <frameName>imu_link_tb2</frameName>
+      <topicName>imu_tb2</topicName>
+      <serviceName>imu_service_tb2</serviceName>
       <gaussianNoise>0.0</gaussianNoise>
       <updateRate>0</updateRate>
       <imu>
@@ -99,7 +99,7 @@
     </plugin>
   </gazebo>
 
-  <gazebo reference="base_scan_tb1">
+  <gazebo reference="base_scan_tb2">
     <material>Gazebo/FlatBlack</material>
     <sensor type="ray" name="lds_lfcd_sensor">
       <pose>0 0 0 0 0 0</pose>
@@ -126,8 +126,8 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">
-        <topicName>scan_tb1</topicName>
-        <frameName>base_scan_tb1</frameName>
+        <topicName>scan_tb2</topicName>
+        <frameName>base_scan_tb2</frameName>
       </plugin>
     </sensor>
   </gazebo>
