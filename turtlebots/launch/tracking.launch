@@ -1,8 +1,14 @@
 <launch>
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-  <arg name="x_pos" default="-2.0"/>
-  <arg name="y_pos" default="-0.5"/>
-  <arg name="z_pos" default="0.0"/>
+  <arg name="x_pos_tb1" default="0.0"/>
+  <arg name="y_pos_tb1" default="0.0"/>
+  <arg name="z_pos_tb1" default="0.0"/>
+  <arg name="x_pos_tb2" default="3.0"/>
+  <arg name="y_pos_tb2" default="1.0"/>
+  <arg name="z_pos_tb2" default="0.0"/>
+  <arg name="x_pos_tb3" default="3.0"/>
+  <arg name="y_pos_tb3" default="-1.0"/>
+  <arg name="z_pos_tb3" default="0.0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/empty.world"/>
@@ -17,7 +23,7 @@
   <param name="robot_description_tb2" command="$(find xacro)/xacro --inorder $(find turtlebots)/urdf/turtlebot3_$(arg model).urdf.xacro" />
   <param name="robot_description_tb3" command="$(find xacro)/xacro --inorder $(find turtlebots)/urdf/turtlebot3_$(arg model)_3.urdf.xacro" />
 
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb1"  args="-urdf -model turtlebot3_$(arg model)_1 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description_tb1" />
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb2"  args="-urdf -model turtlebot3_$(arg model)_2 -x 3.0 -y -1.0 -z $(arg z_pos) -param robot_description_tb2" />
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb3"  args="-urdf -model turtlebot3_$(arg model)_3 -x 3.0 -y 1.0 -z $(arg z_pos) -param robot_description_tb3" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb1"  args="-urdf -model turtlebot3_$(arg model)_1 -x $(arg x_pos_tb1) -y $(arg y_pos_tb1) -z $(arg z_pos_tb1) -param robot_description_tb1" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb2"  args="-urdf -model turtlebot3_$(arg model)_2 -x $(arg x_pos_tb2) -y $(arg y_pos_tb2) -z $(arg z_pos_tb2) -param robot_description_tb2" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tb3"  args="-urdf -model turtlebot3_$(arg model)_3 -x $(arg x_pos_tb3) -y $(arg y_pos_tb3) -z $(arg z_pos_tb3) -param robot_description_tb3" />
 </launch>
