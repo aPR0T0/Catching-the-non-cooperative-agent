@@ -55,33 +55,42 @@ path_ugv = [[3,-1]]
 x_uav_prev, y_uav_prev = 3, 0
 x_uav, y_uav = 3, 1
 x_ugv, y_ugv = 3,-1
+odo_tb1_count, odo_tb2_count, odo_tb3_count, vel_target_count = 0, 0, 0, 0
 
 def odo_sub_uav(odom_data):
+    global x_uav, y_uav, odo_tb1_count
     x_uav = odom_data.pose.pose.position.x
     y_uav = odom_data.pose.pose.position.y
+    odo_tb1_count = odo_tb1_count + 1
+    print(" odo count ", odo_tb2_count)
 
 def odo_sub_ugv(odom_data):
+    global x_ugv, y_ugv, odo_tb2_count
     x_ugv = odom_data.pose.pose.position.x
     y_ugv = odom_data.pose.pose.position.y
+    odo_tb2_count = odo_tb2_count + 1
 
 def odo_sub(odom_data):
+    global x_previous, y_previous, odo_tb3_count
     x_previous = odom_data.pose.pose.position.x
     y_previous = odom_data.pose.pose.position.y
+    odo_tb3_count = odo_tb3_count + 1
 
 def vel_sub(odom_data):
-    vel_target = odom_data.twist.twist.linear.x
+    global vel_target, vel_target_count
+    vel_target = odom_data.twist.twist.linear.x 
+    vel_target_count = vel_target_count + 1
 
 def catcher():
+    global x_uav, y_uav, x_ugv, y_ugv, x_previous, y_previous, x_uav_prev, y_uav_prev, vel_target, odo_tb1_count, odo_tb2_count, odo_tb3_count, vel_target_count
     rospy.init_node('Path_renderer', anonymous=False)
-    global x_uav, y_uav, x_ugv, y_ugv, x_previous, y_previous, x_uav_prev, y_uav_prev, vel_target
-    while not rospy.is_shutdown():  
-        # creating subscribers and publishers for 3 turtlebots
-        rospy.Subscriber("/odom", Odometry, odo_sub)
-        rospy.Subscriber("/odom_tb1", Odometry, odo_sub_ugv)
-        rospy.Subscriber("/odom_tb2", Odometry, odo_sub_uav)
-        print(x_previous, y_previous)
-        rospy.Subscriber("/odom", Odometry, vel_sub)
-
+    # creating subscribers and publishers for 3 turtlebots
+    rospy.Subscriber("/odom", Odometry, odo_sub)
+    rospy.Subscriber("/odom_tb1", Odometry, odo_sub_ugv)
+    rospy.Subscriber("/odom_tb2", Odometry, odo_sub_uav)
+    rospy.Subscriber("/odom", Odometry, vel_sub)
+    if (odo_tb1_count > 1) and (odo_tb2_count > 1) and (odo_tb3_count > 1):
+        print("This is triggered")
         pose_one = [x_previous, y_previous]
 
         pose_pred = prediction.predictor_polynomial(
@@ -105,6 +114,9 @@ def catcher():
             print("Path of UAV until target is caught: \n", path_uav, "\n")
             print("Path of UGV until target is caught: \n", path_ugv, "\n")
             rospy.signal_shutdown("Target was caught successfully\n")
+    else:
+        print("Condition not yet triggered\n")
+    rospy.spin()
 
 if __name__ == "__main__":
     try:
