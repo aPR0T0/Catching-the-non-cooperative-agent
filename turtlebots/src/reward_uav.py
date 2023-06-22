@@ -28,10 +28,6 @@
 from cmath import sqrt, cos, sin
 import numpy as np
 
-# x0 and y0 here are the previous postions of the UAV
-x0, y0 = -1, -1
-# x1 and y1 here are the current positons of the UAV
-x1, y1 = 0, 0
 # Angle of vision in degrees
 theta = 60
 # radius of vision is 5m from the UAV
@@ -84,7 +80,7 @@ def reward(x0, y0, x1, y1, x_target, y_target):
     return reward_value
 
 
-def maximize_reward(list, x0, y0):
+def maximize_reward(list, x0, y0, x1, y1):
     max_reward = 0
     max_reward_coordinates = np.array(list[0][0], list[0][1])
 

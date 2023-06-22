@@ -37,23 +37,23 @@ time_horizon = 1
 
 
 def candidates(x_current, y_current):
-    candidate_locations = np.empty((2, np.inf))
+    candidate_locations = np.empty((2, 10000))
 
-    candidate_locations.append(x_current, y_current + 1)
-    candidate_locations.append(x_current, y_current - 1)
-    candidate_locations.append(x_current + 1, y_current)
-    candidate_locations.append(x_current - 1, y_current)
+    candidate_locations = [[x_current, y_current + 1]]
+    candidate_locations.append([x_current, y_current - 1])
+    candidate_locations.append([x_current + 1, y_current])
+    candidate_locations.append([x_current - 1, y_current])
 
     for i in range(0, 360, 60):
         candidate_locations.append(
-            (time_horizon * cos(i * pi / 180)) + x_current,
-            (time_horizon * sin(i * pi / 180)) + y_current,
+            [(time_horizon * cos(i * pi / 180)) + x_current,
+            (time_horizon * sin(i * pi / 180)) + y_current]
         )
 
     for i in range(0, 360, 45):
-        candidate_locations.append(
+        candidate_locations.append([
             (2 * time_horizon * cos(i * pi / 180)) + x_current,
-            (2 * time_horizon * sin(i * pi / 180)) + y_current,
+            (2 * time_horizon * sin(i * pi / 180)) + y_current]
         )
 
     return candidate_locations

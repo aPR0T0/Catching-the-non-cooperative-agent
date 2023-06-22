@@ -50,49 +50,60 @@ x_previous, y_previous = 0, 0
 # velocity of target = 1m/s ... Initially i.e. just assumed
 # This velocity should be observed by the UAV
 vel_target = 1
-path_uav = np.array([[3,1]])
-path_ugv = np.array([[3,-1]])
-x_uav, y_uav = 3, 3
-x_ugv, y_ugv = 1, 1
+path_uav = [[3, 1]]
+path_ugv = [[3,-1]]
+x_uav_prev, y_uav_prev = 3, 0
+x_uav, y_uav = 3, 1
+x_ugv, y_ugv = 3,-1
+
+def odo_sub_uav(odom_data):
+    x_uav = odom_data.pose.pose.position.x
+    y_uav = odom_data.pose.pose.position.y
+
+def odo_sub_ugv(odom_data):
+    x_ugv = odom_data.pose.pose.position.x
+    y_ugv = odom_data.pose.pose.position.y
 
 def odo_sub(odom_data):
-    x = odom_data.pose.pose.position.x
-    y = odom_data.pose.pose.position.y
-
-    return x, y
+    x_previous = odom_data.pose.pose.position.x
+    y_previous = odom_data.pose.pose.position.y
 
 def vel_sub(odom_data):
-    vel = odom_data.twist.twist.linear.x
-
-    return vel
+    vel_target = odom_data.twist.twist.linear.x
 
 def catcher():
     rospy.init_node('Path_renderer', anonymous=False)
-
-    while not rospy.is_shutdown():
+    global x_uav, y_uav, x_ugv, y_ugv, x_previous, y_previous, x_uav_prev, y_uav_prev, vel_target
+    while not rospy.is_shutdown():  
         # creating subscribers and publishers for 3 turtlebots
-        x_previous, y_previous = rospy.Subscriber("/pose_sub_for_agent", Odometry, odo_sub)
-        x_ugv, y_ugv = rospy.Subscriber("/pose_sub_for_ugv", Odometry, odo_sub)
-        x_uav, y_uav = rospy.Subscriber("/pose_sub_for_uav", Odometry, odo_sub)
+        rospy.Subscriber("/odom", Odometry, odo_sub)
+        rospy.Subscriber("/odom_tb1", Odometry, odo_sub_ugv)
+        rospy.Subscriber("/odom_tb2", Odometry, odo_sub_uav)
 
-        vel_target = rospy.Subscriber("/vel_sub_for_agent", Odometry, vel_sub)
+        rospy.Subscriber("/odom", Odometry, vel_sub)
 
-        pose_one = np.array([x_previous, y_previous])
+        pose_one = [x_previous, y_previous]
 
-        curr_pose = prediction.predictor_polynomial(
+        pose_pred = prediction.predictor_polynomial(
             pose_one[0], pose_one[1], pose_one[0] + vel_target, pose_one[1] + vel_target
         )
 
-        candidates_locations = candidates.candidates(curr_pose[0], curr_pose[1])
-
-        reward_coordinates = reward_uav.maximize_reward(candidates_locations, x_uav, y_uav)
+        candidates_locations = candidates.candidates(pose_pred[0], pose_pred[1])
+        print("Candidate Locations : \n", candidates_locations, "\n")
+        reward_coordinates = reward_uav.maximize_reward(candidates_locations, x_uav_prev, y_uav_prev, x_uav, y_uav)
         cost_coordinates = cost_ugv.minimize_cost(candidates_locations, x_ugv, y_ugv)
 
         # publish the next pose of the UAV's and UGV's until UGV is less than 1m away from the target
         new_x_uav, new_y_uav = reward_coordinates[0], reward_coordinates[1]
         new_x_ugv, new_y_ugv = cost_coordinates[0], cost_coordinates[1]
+        path_uav.append([new_x_uav, new_y_uav]) 
+        path_ugv.append([new_x_ugv, new_x_ugv])
 
-        if reward_uav.dist(new_x_ugv, new_y_uav, curr_pose[0], curr_pose[1]) <= 1:
+        x_uav_prev = x_uav
+        y_uav_prev = y_uav
+        if reward_uav.dist(new_x_ugv, new_y_ugv, pose_pred[0], pose_pred[1]) <= 1:
+            print("Path of UAV until target is caught: \n", path_uav, "\n")
+            print("Path of UGV until target is caught: \n", path_ugv, "\n")
             rospy.signal_shutdown("Target was caught successfully\n")
 
 if __name__ == "__main__":
