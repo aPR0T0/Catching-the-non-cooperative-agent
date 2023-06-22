@@ -41,16 +41,16 @@ So, for the same we propose a cost function that focuses on predicting motion of
 
 
 def dist(x1, y1, x2, y2):
-    return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
 
 def minimize_cost(list, x1, y1):
     min_cost = np.inf
-    min_cost_coordinates = np.array(list[0][0], list[0][1])
+    min_cost_coordinates = np.array([list[0][0], list[0][1]])
 
     for i in range(len(list)):
         if min_cost > dist(x1, y1, list[i][0], list[i][1]):
             min_cost = min(dist(x1, y1, list[i][0], list[i][1]), min_cost)
-            min_cost_coordinates = np.array(list[i][0], list[i][1])
+            min_cost_coordinates = np.array([list[i][0], list[i][1]])
 
     return min_cost_coordinates

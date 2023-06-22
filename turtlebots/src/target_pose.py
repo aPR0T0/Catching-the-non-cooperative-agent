@@ -79,7 +79,7 @@ def catcher():
         rospy.Subscriber("/odom", Odometry, odo_sub)
         rospy.Subscriber("/odom_tb1", Odometry, odo_sub_ugv)
         rospy.Subscriber("/odom_tb2", Odometry, odo_sub_uav)
-
+        print(x_previous, y_previous)
         rospy.Subscriber("/odom", Odometry, vel_sub)
 
         pose_one = [x_previous, y_previous]
