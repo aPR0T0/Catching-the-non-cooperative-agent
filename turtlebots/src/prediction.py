@@ -36,8 +36,8 @@ import numpy as np
 def predictor_polynomial(x0, y0, x1, y1):
     global x2, y2
 
-    x2 = ((x0 + x1 + 1) ^ 2) / 2
-    y2 = ((y0 + y1 + 1) ^ 2) / 2
+    x2 = ((x0 + x1 + 1) ** 2) / 2
+    y2 = ((y0 + y1 + 1) ** 2) / 2
 
     pose_est = np.array([x2, y2])
     return pose_est

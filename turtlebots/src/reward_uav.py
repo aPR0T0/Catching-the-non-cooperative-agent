@@ -49,12 +49,12 @@ So, for the same we propose a reward function that focuses on predicting motion 
 def reward(x0, y0, x1, y1, x_target, y_target):
     vec1 = np.array([[(x1 - x0), (y1 - y0)], [(y0 - y1), (x1 - x0)]])
     vec2 = np.array(
-        [[(x0 - x1) * x_target + (y1 - y0) * y_target], [(x0 - x1) * y1 + (y1 - y0) * x1]]
+        [(x0 - x1) * x_target + (y1 - y0) * y_target, (x0 - x1) * y1 + (y1 - y0) * x1 ]
     )
-    x2, y2 = np.linalg.solve(vec1, vec2)[0], np.linalg.solve(vec1, vec2)[1]
-    pose = np.array([[x2, y2]])
-
-    z = dist(x1, y1, x2, y2)
+    print(vec1, "\n", vec2, "\n")
+    pose = np.linalg.solve(vec1, vec2)
+    print(pose)
+    z = dist(x1, y1, pose[0], pose[1])
 
     # D E B U G G I N G
     # print("Print the dimensions: \n\n\n",np.ndim(vec1), "\t\t\t", np.ndim(vec2), np.ndim( np.array(
@@ -76,8 +76,8 @@ def reward(x0, y0, x1, y1, x_target, y_target):
         pose
     )
 
-    xt, yt = dist(pose_left[0], pose_left[1], x2, y2), dist(
-        pose_right[0], pose_right[1], x2, y2
+    xt, yt = dist(pose_left[0], pose_left[1], pose[0], pose[1]), dist(
+        pose_right[0], pose_right[1], pose[0], pose[1]
     )
 
     reward_value = xt * yt * (rov - z) * z
