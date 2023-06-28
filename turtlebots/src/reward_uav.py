@@ -49,6 +49,8 @@ So, for the same we propose a reward function that focuses on predicting motion 
 
 
 def reward(x0, y0, x1, y1, x_target, y_target):
+    # print(x0, x1, y0, y1, "\n")
+
     vec1 = np.array([[(x1 - x0), (y1 - y0)], [(y0 - y1), (x1 - x0)]])
     vec2 = np.array(
         [(x0 - x1) * x_target + (y1 - y0) * y_target, (x0 - x1) * y1 + (y1 - y0) * x1]
@@ -104,6 +106,6 @@ def maximize_reward(pose_one, pose_two, x0, y0, x1, y1):
             max_reward = max(
                 reward(x0, y0, list[i][0], list[i][1], pose_one, pose_two), max_reward
             )
-            max_reward_coordinates = np.array([list[i][0], list[i][1]])
+            max_reward_coordinates = [list[i][0], list[i][1]]
     # print("Maximum Reward:\t", max_reward, "\n")
     return max_reward_coordinates

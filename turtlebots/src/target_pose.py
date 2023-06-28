@@ -144,14 +144,14 @@ def catcher():
                 # print("Here are cost coordinates:\n", cost_coordinates, "\n")
                 # publish the next pose of the UAV's and UGV's until UGV is less than 1m away from the target
 
-                x_uav_prev = x_uav
-                y_uav_prev = y_uav
-
                 x_uav, y_uav = reward_coordinates[0], reward_coordinates[1]
                 x_ugv, y_ugv = cost_coordinates[0], cost_coordinates[1]
 
+                x_uav_prev = x_uav
+                y_uav_prev = y_uav
+
                 path_uav.append([x_uav, y_uav])
-                path_ugv.append([x_ugv, x_ugv])
+                path_ugv.append([x_ugv, y_ugv])
 
                 # print(path_uav, "\n", path_ugv, "\n")
 

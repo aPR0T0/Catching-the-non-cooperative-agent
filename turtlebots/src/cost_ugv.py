@@ -56,6 +56,7 @@ def minimize_cost(x1, y1, x_ugv, y_ugv):
             # print("Minimizing the cost\n")
             min_cost = min(dist(x1, y1, list[i][0], list[i][1]), min_cost)
             min_cost_coordinates = [list[i][0], list[i][1]]
+            print(min_cost_coordinates, "\n")
             # print("coord", min_cost_coordinates)
             # print("min_cost:\t", min_cost, "\n")
     return min_cost_coordinates
