@@ -26,6 +26,7 @@
 # candidate states provided
 
 from cmath import sqrt, cos, sin, pi
+from candidates import candidates
 import numpy as np
 
 # Angle of vision in degrees
@@ -35,7 +36,7 @@ rov = 5
 
 
 def dist(x1, y1, x2, y2):
-    print("Dist:\n", np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)), "\n")
+    # print("Dist:\n", np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)), "\n")
     return np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
 
@@ -52,7 +53,7 @@ def reward(x0, y0, x1, y1, x_target, y_target):
     vec2 = np.array(
         [(x0 - x1) * x_target + (y1 - y0) * y_target, (x0 - x1) * y1 + (y1 - y0) * x1]
     )
-    print("Vec1:\n", vec1, "\n", "Vec2:\n", vec2, "\n")
+    # print("Vec1:\n", vec1, "\n", "Vec2:\n", vec2, "\n")
     pose = np.linalg.solve(vec1, vec2)
     # print(pose)
     z = dist(x1, y1, pose[0], pose[1])
@@ -86,18 +87,23 @@ def reward(x0, y0, x1, y1, x_target, y_target):
     )
 
     reward_value = xt * yt * (rov - z) * z
-    print("Reward Value: ", reward_value)
+    # print("Reward Value: ", reward_value)
     return np.real(reward_value)
 
 
-def maximize_reward(list, x0, y0, x1, y1):
+def maximize_reward(pose_one, pose_two, x0, y0, x1, y1):
+    # print(pose_one, pose_two, x0, y0, x1, y1, "\n")
     max_reward = 0
+
+    list = candidates(x1, y1)
     max_reward_coordinates = np.array([list[0][0], list[0][1]])
 
     for i in range(len(list)):
-        if max_reward < reward(x0, y0, x1, y1, list[i][0], list[i][1]):
+        if max_reward < reward(x0, y0, list[i][0], list[i][1], pose_one, pose_two):
             # print("Reward is maximized\n")
-            max_reward = max(reward(x0, y0, x1, y1, list[i][0], list[i][1]), max_reward)
+            max_reward = max(
+                reward(x0, y0, list[i][0], list[i][1], pose_one, pose_two), max_reward
+            )
             max_reward_coordinates = np.array([list[i][0], list[i][1]])
-    print("Maximum Reward:\t", max_reward, "\n")
+    # print("Maximum Reward:\t", max_reward, "\n")
     return max_reward_coordinates

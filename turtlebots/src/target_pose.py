@@ -67,7 +67,7 @@ def odo_sub_uav(odom_data):
     odo_tb1_count = odo_tb1_count + 1
     vel_target = odom_data.twist.twist.linear.x
     vel_target_count = vel_target_count + 1
-    rospy.loginfo(" odo count " + str(odo_tb2_count))
+    # rospy.loginfo(" odo count " + str(odo_tb2_count))
 
 
 def odo_sub_ugv(odom_data):
@@ -86,19 +86,21 @@ def odo_sub(odom_data):
     odo_tb3_count = odo_tb3_count + 1
 
 
-rospy.loginfo(
-    "odo counts "
-    + str(odo_tb1_count)
-    + " "
-    + str(odo_tb2_count)
-    + " "
-    + str(odo_tb3_count)
-    + "\n"
-)
+# rospy.loginfo(
+#     "odo counts "
+#     + str(odo_tb1_count)
+#     + " "
+#     + str(odo_tb2_count)
+#     + " "
+#     + str(odo_tb3_count)
+#     + "\n"
+# )
+
+count = 0
 
 
 def catcher():
-    global x_previous, y_previous, x_uav, y_uav, x_ugv, y_ugv, odo_tb1_count, odo_tb2_count, odo_tb3_count, x_uav_prev, y_uav_prev
+    global x_previous, y_previous, x_uav, y_uav, x_ugv, y_ugv, odo_tb1_count, odo_tb2_count, odo_tb3_count, x_uav_prev, y_uav_prev, path_uav, path_ugv
 
     rospy.init_node("Path_renderer", anonymous=False)
 
@@ -112,16 +114,16 @@ def catcher():
 
         # At least we have some idea about the position of the bots
         if odo_tb1_count > 2 and odo_tb2_count > 2 and odo_tb3_count > 2:
-            print(
-                "Odo Counts : ",
-                odo_tb1_count,
-                " ",
-                odo_tb2_count,
-                " ",
-                odo_tb3_count,
-                "  \n",
-            )
-            rospy.loginfo("This is triggered\n")
+            # print(
+            #     "Odo Counts : ",
+            #     odo_tb1_count,
+            #     " ",
+            #     odo_tb2_count,
+            #     " ",
+            #     odo_tb3_count,
+            #     "  \n",
+            # )
+            # rospy.loginfo("This is triggered\n")
             pose_one = [x_previous, y_previous]
 
             pose_pred = prediction.predictor_polynomial(
@@ -131,34 +133,36 @@ def catcher():
                 pose_one[1] + vel_target,
             )
 
-            candidates_locations = candidates.candidates(pose_pred[0], pose_pred[1])
-            rospy.loginfo("Candidate Locations : \n" + str(candidates_locations) + "\n")
-            reward_coordinates = reward_uav.maximize_reward(
-                candidates_locations, x_uav_prev, y_uav_prev, x_uav, y_uav
-            )
-            print("Here are reward Coordinates:\n", reward_coordinates, "\n")
-            cost_coordinates = cost_ugv.minimize_cost(
-                candidates_locations, x_ugv, y_ugv
-            )
-            print("Here are cost coordinates:\n", cost_coordinates, "\n")
-            # publish the next pose of the UAV's and UGV's until UGV is less than 1m away from the target
-
-            x_uav_prev = x_uav
-            y_uav_prev = y_uav
-
-            x_uav, y_uav = reward_coordinates[0], reward_coordinates[1]
-            x_ugv, y_ugv = cost_coordinates[0], cost_coordinates[1]
-            path_uav.append([x_uav, y_uav])
-            path_ugv.append([x_ugv, x_ugv])
-
-            if reward_uav.dist(x_ugv, y_ugv, pose_pred[0], pose_pred[1]) <= 1:
-                rospy.loginfo(
-                    "Path of UAV until target is caught: \n" + str(path_uav) + "\n"
+            while reward_uav.dist(x_ugv, y_ugv, pose_pred[0], pose_pred[1]) > 1:
+                reward_coordinates = reward_uav.maximize_reward(
+                    pose_pred[0], pose_pred[1], x_uav_prev, y_uav_prev, x_uav, y_uav
                 )
-                rospy.loginfo(
-                    "Path of UGV until target is caught: \n" + str(path_ugv) + "\n"
+                # print("Here are reward Coordinates:\n", reward_coordinates, "\n")
+                cost_coordinates = cost_ugv.minimize_cost(
+                    pose_pred[0], pose_pred[1], x_ugv, y_ugv
                 )
-                rospy.signal_shutdown("Target was caught successfully\n")
+                # print("Here are cost coordinates:\n", cost_coordinates, "\n")
+                # publish the next pose of the UAV's and UGV's until UGV is less than 1m away from the target
+
+                x_uav_prev = x_uav
+                y_uav_prev = y_uav
+
+                x_uav, y_uav = reward_coordinates[0], reward_coordinates[1]
+                x_ugv, y_ugv = cost_coordinates[0], cost_coordinates[1]
+
+                path_uav.append([x_uav, y_uav])
+                path_ugv.append([x_ugv, x_ugv])
+
+                # print(path_uav, "\n", path_ugv, "\n")
+
+            rospy.loginfo(
+                "Path of UAV until target is caught: \n" + str(path_uav) + "\n"
+            )
+            rospy.loginfo(
+                "Path of UGV until target is caught: \n" + str(path_ugv) + "\n"
+            )
+            rospy.signal_shutdown("Target was caught successfully\n")
+
         r.sleep()
 
 

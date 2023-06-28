@@ -26,6 +26,7 @@
 
 from cmath import sqrt, cos, sin
 import numpy as np
+from candidates import candidates
 
 # x1 and y1 here are the current positons of the UGV
 x1, y1 = 0, 0
@@ -44,14 +45,17 @@ def dist(x1, y1, x2, y2):
     return np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
 
-def minimize_cost(list, x1, y1):
+def minimize_cost(x1, y1, x_ugv, y_ugv):
     min_cost = np.inf
+
+    list = candidates(x_ugv, y_ugv)
     min_cost_coordinates = np.array([list[0][0], list[0][1]])
 
     for i in range(len(list)):
         if min_cost > dist(x1, y1, list[i][0], list[i][1]):
-            print("Minimizing the cost\n")
+            # print("Minimizing the cost\n")
             min_cost = min(dist(x1, y1, list[i][0], list[i][1]), min_cost)
             min_cost_coordinates = [list[i][0], list[i][1]]
-    print("min_cost:\t", min_cost, "\n")
+            # print("coord", min_cost_coordinates)
+            # print("min_cost:\t", min_cost, "\n")
     return min_cost_coordinates
