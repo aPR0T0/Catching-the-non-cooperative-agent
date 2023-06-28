@@ -45,17 +45,18 @@ Then we need to get all the desired setpoints for UGV and UAV
 Then we need to go for the next point that is Update step and do the previous step for the same
 Above procedure is repeated until distance between UGV and target is <= 1
 """
-x_previous, y_previous = 0, 0
+x_previous, y_previous = 0, -1
 
 # velocity of target = 1m/s ... Initially i.e. just assumed
 # This velocity should be observed by the UAV
 vel_target = 1
 path_uav = [[3, 1]]
-path_ugv = [[3,-1]]
+path_ugv = [[3, -1]]
 x_uav_prev, y_uav_prev = 3, 0
 x_uav, y_uav = 3, 1
-x_ugv, y_ugv = 3,-1
+x_ugv, y_ugv = 3, -1
 odo_tb1_count, odo_tb2_count, odo_tb3_count, vel_target_count = 0, 0, 0, 0
+
 
 def odo_sub_uav(odom_data):
     global x_uav, y_uav, odo_tb1_count
@@ -64,9 +65,10 @@ def odo_sub_uav(odom_data):
     x_uav = odom_data.pose.pose.position.x
     y_uav = odom_data.pose.pose.position.y
     odo_tb1_count = odo_tb1_count + 1
-    vel_target = odom_data.twist.twist.linear.x 
+    vel_target = odom_data.twist.twist.linear.x
     vel_target_count = vel_target_count + 1
-    rospy.loginfo(" odo count "+ str(odo_tb2_count))
+    rospy.loginfo(" odo count " + str(odo_tb2_count))
+
 
 def odo_sub_ugv(odom_data):
     global x_ugv, y_ugv, odo_tb2_count
@@ -75,61 +77,93 @@ def odo_sub_ugv(odom_data):
     y_ugv = odom_data.pose.pose.position.y
     odo_tb2_count = odo_tb2_count + 1
 
+
 def odo_sub(odom_data):
     global x_previous, y_previous, odo_tb3_count
-    # x_previous , y_previous , odo_tb3_count = 0 , 0 , 0
+    # x_previous , y_previous , odo_tb3_count = 0 , -1 , 0
     x_previous = odom_data.pose.pose.position.x
     y_previous = odom_data.pose.pose.position.y
     odo_tb3_count = odo_tb3_count + 1
 
-rospy.loginfo("odo counts " + str(odo_tb1_count)+ " "+str(odo_tb2_count)+" "+ str(odo_tb3_count)+"\n")
+
+rospy.loginfo(
+    "odo counts "
+    + str(odo_tb1_count)
+    + " "
+    + str(odo_tb2_count)
+    + " "
+    + str(odo_tb3_count)
+    + "\n"
+)
+
 
 def catcher():
-    
     global x_previous, y_previous, x_uav, y_uav, x_ugv, y_ugv, odo_tb1_count, odo_tb2_count, odo_tb3_count, x_uav_prev, y_uav_prev
 
-    rospy.init_node('Path_renderer', anonymous=False)
+    rospy.init_node("Path_renderer", anonymous=False)
 
-    r = rospy.Rate(100);
+    r = rospy.Rate(100)
 
     while not rospy.is_shutdown():
         # creating subscribers and publishers for 3 turtlebots
         rospy.Subscriber("/odom", Odometry, odo_sub)
         rospy.Subscriber("/odom_tb1", Odometry, odo_sub_ugv)
         rospy.Subscriber("/odom_tb2", Odometry, odo_sub_uav)
-        
+
         # At least we have some idea about the position of the bots
-        if (odo_tb1_count > 2 and odo_tb2_count > 2 and odo_tb3_count>2):
-            print("Odo Counts : ", odo_tb1_count, " ", odo_tb2_count, " ", odo_tb3_count, "  \n")
+        if odo_tb1_count > 2 and odo_tb2_count > 2 and odo_tb3_count > 2:
+            print(
+                "Odo Counts : ",
+                odo_tb1_count,
+                " ",
+                odo_tb2_count,
+                " ",
+                odo_tb3_count,
+                "  \n",
+            )
             rospy.loginfo("This is triggered\n")
             pose_one = [x_previous, y_previous]
 
             pose_pred = prediction.predictor_polynomial(
-                pose_one[0], pose_one[1], pose_one[0] + vel_target, pose_one[1] + vel_target
+                pose_one[0],
+                pose_one[1],
+                pose_one[0] + vel_target,
+                pose_one[1] + vel_target,
             )
 
             candidates_locations = candidates.candidates(pose_pred[0], pose_pred[1])
-            rospy.loginfo("Candidate Locations : \n" + str(candidates_locations)+ "\n")
-            reward_coordinates = reward_uav.maximize_reward(candidates_locations, x_uav_prev, y_uav_prev, x_uav, y_uav)
-            cost_coordinates = cost_ugv.minimize_cost(candidates_locations, x_ugv, y_ugv)
-
+            rospy.loginfo("Candidate Locations : \n" + str(candidates_locations) + "\n")
+            reward_coordinates = reward_uav.maximize_reward(
+                candidates_locations, x_uav_prev, y_uav_prev, x_uav, y_uav
+            )
+            print("Here are reward Coordinates:\n", reward_coordinates, "\n")
+            cost_coordinates = cost_ugv.minimize_cost(
+                candidates_locations, x_ugv, y_ugv
+            )
+            print("Here are cost coordinates:\n", cost_coordinates, "\n")
             # publish the next pose of the UAV's and UGV's until UGV is less than 1m away from the target
-            new_x_uav, new_y_uav = reward_coordinates[0], reward_coordinates[1]
-            new_x_ugv, new_y_ugv = cost_coordinates[0], cost_coordinates[1]
-            path_uav.append([new_x_uav, new_y_uav]) 
-            path_ugv.append([new_x_ugv, new_x_ugv])
 
             x_uav_prev = x_uav
             y_uav_prev = y_uav
 
-            if reward_uav.dist(new_x_ugv, new_y_ugv, pose_pred[0], pose_pred[1]) <= 1:
-                rospy.loginfo("Path of UAV until target is caught: \n"+ str(path_uav)+ "\n")
-                rospy.loginfo("Path of UGV until target is caught: \n"+ str(path_ugv)+ "\n")
+            x_uav, y_uav = reward_coordinates[0], reward_coordinates[1]
+            x_ugv, y_ugv = cost_coordinates[0], cost_coordinates[1]
+            path_uav.append([x_uav, y_uav])
+            path_ugv.append([x_ugv, x_ugv])
+
+            if reward_uav.dist(x_ugv, y_ugv, pose_pred[0], pose_pred[1]) <= 1:
+                rospy.loginfo(
+                    "Path of UAV until target is caught: \n" + str(path_uav) + "\n"
+                )
+                rospy.loginfo(
+                    "Path of UGV until target is caught: \n" + str(path_ugv) + "\n"
+                )
                 rospy.signal_shutdown("Target was caught successfully\n")
         r.sleep()
+
 
 if __name__ == "__main__":
     try:
         catcher()
     except rospy.ROSInterruptException:
-        pass 
+        pass

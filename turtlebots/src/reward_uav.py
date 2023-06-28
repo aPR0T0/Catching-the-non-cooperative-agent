@@ -35,6 +35,7 @@ rov = 5
 
 
 def dist(x1, y1, x2, y2):
+    print("Dist:\n", np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)), "\n")
     return np.real(sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
 
@@ -49,11 +50,11 @@ So, for the same we propose a reward function that focuses on predicting motion 
 def reward(x0, y0, x1, y1, x_target, y_target):
     vec1 = np.array([[(x1 - x0), (y1 - y0)], [(y0 - y1), (x1 - x0)]])
     vec2 = np.array(
-        [(x0 - x1) * x_target + (y1 - y0) * y_target, (x0 - x1) * y1 + (y1 - y0) * x1 ]
+        [(x0 - x1) * x_target + (y1 - y0) * y_target, (x0 - x1) * y1 + (y1 - y0) * x1]
     )
-    print(vec1, "\n", vec2, "\n")
+    print("Vec1:\n", vec1, "\n", "Vec2:\n", vec2, "\n")
     pose = np.linalg.solve(vec1, vec2)
-    print(pose)
+    # print(pose)
     z = dist(x1, y1, pose[0], pose[1])
 
     # D E B U G G I N G
@@ -61,19 +62,23 @@ def reward(x0, y0, x1, y1, x_target, y_target):
     #         [[cos((theta / 2)*pi/180), -sin((theta / 2)*pi/180)],
     #         [sin((theta / 2)*pi/180), cos((theta / 2)*pi/180)]]
     #     )),"\n\n\n")
-    
+
     pose_left, pose_right = np.dot(
         np.array(
-            [[cos((theta / 2)*pi/180), -sin((theta / 2)*pi/180)],
-            [sin((theta / 2)*pi/180), cos((theta / 2)*pi/180)]]
+            [
+                [cos((theta / 2) * pi / 180), -sin((theta / 2) * pi / 180)],
+                [sin((theta / 2) * pi / 180), cos((theta / 2) * pi / 180)],
+            ]
         ),
-        pose
+        pose,
     ), np.dot(
         np.array(
-            [[cos(-(theta / 2)*pi/180), -sin(-(theta / 2)*pi/180)],
-            [sin(-(theta / 2)*pi/180), cos(-(theta / 2)*pi/180)]]
+            [
+                [cos(-(theta / 2) * pi / 180), -sin(-(theta / 2) * pi / 180)],
+                [sin(-(theta / 2) * pi / 180), cos(-(theta / 2) * pi / 180)],
+            ]
         ),
-        pose
+        pose,
     )
 
     xt, yt = dist(pose_left[0], pose_left[1], pose[0], pose[1]), dist(
@@ -81,7 +86,7 @@ def reward(x0, y0, x1, y1, x_target, y_target):
     )
 
     reward_value = xt * yt * (rov - z) * z
-    print(reward_value)
+    print("Reward Value: ", reward_value)
     return np.real(reward_value)
 
 
@@ -91,7 +96,8 @@ def maximize_reward(list, x0, y0, x1, y1):
 
     for i in range(len(list)):
         if max_reward < reward(x0, y0, x1, y1, list[i][0], list[i][1]):
+            # print("Reward is maximized\n")
             max_reward = max(reward(x0, y0, x1, y1, list[i][0], list[i][1]), max_reward)
             max_reward_coordinates = np.array([list[i][0], list[i][1]])
-
+    print("Maximum Reward:\t", max_reward, "\n")
     return max_reward_coordinates

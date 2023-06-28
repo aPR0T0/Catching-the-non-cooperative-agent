@@ -50,7 +50,8 @@ def minimize_cost(list, x1, y1):
 
     for i in range(len(list)):
         if min_cost > dist(x1, y1, list[i][0], list[i][1]):
+            print("Minimizing the cost\n")
             min_cost = min(dist(x1, y1, list[i][0], list[i][1]), min_cost)
-            min_cost_coordinates = np.array([list[i][0], list[i][1]])
-
+            min_cost_coordinates = [list[i][0], list[i][1]]
+    print("min_cost:\t", min_cost, "\n")
     return min_cost_coordinates
