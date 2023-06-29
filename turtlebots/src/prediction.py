@@ -30,14 +30,15 @@ Function : predictor_polynomial curve
 Inputs : current position of target and a position second before of the target
 """
 import numpy as np
+from math import sqrt
 
 
 # This is only about a forward direction
 def predictor_polynomial(x0, y0, x1, y1):
     global x2, y2
 
-    x2 = ((x0 + x1 + 1) ** 2) / 2
-    y2 = ((y0 + y1 + 1) ** 2) / 2
+    x2 = sqrt(((x0 + x1 + 1) / 2) ** 2) * abs(x1) / x1
+    y2 = sqrt(((y0 + y1 + 1) / 2) ** 2) * abs(y1) / y1
 
     pose_est = np.array([x2, y2])
     return pose_est
