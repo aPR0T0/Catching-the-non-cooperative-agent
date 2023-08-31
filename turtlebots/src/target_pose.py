@@ -1,3 +1,4 @@
+#! /home/proto/mambaforge/envs/ros_env/bin/python3
 """
     MIT License
 
@@ -24,7 +25,7 @@
 # This will give the path that should be followed based on the shortlisted
 # reachable sites by the uav
 
-"""k
+"""
 We will get a set of candidate goal pose from the candidates.py
 and then according to the heuristics for the UAV we will shortlist the reachable
 set of candidates for just UAV
